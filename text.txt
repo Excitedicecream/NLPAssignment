@@ -1,2 +1,2 @@
-- Shouldn't use NLTK Corpus shoudl find Corpus from other sources
-xxx
+Notes
+- Shouldn't use NLTK Corpus, should find Corpus from other sources
