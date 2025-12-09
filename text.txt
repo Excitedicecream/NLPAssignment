@@ -1,2 +1,0 @@
-Notes
-- Shouldn't use NLTK Corpus, should find Corpus from other sources
