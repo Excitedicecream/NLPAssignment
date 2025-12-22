@@ -226,7 +226,7 @@ with tab1:
     value=st.session_state.editor_text,
     height=250,
     key="editor_text"
-)
+    )
 
 # =============================
 # TAB 2: CLEANED DATASET EXAMPLES
