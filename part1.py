@@ -130,65 +130,14 @@ tab1, tab2 = st.tabs(["✍️ Spelling Correction", "📄 Cleaned Dataset Exampl
 # =============================
 with tab1:
     st.subheader("📝 Enter Text")
-
-    # Ensure session_state key exists
     if "editor_text" not in st.session_state:
         st.session_state.editor_text = ""
 
-    # -----------------------------
-    # EXAMPLE BUTTONS
-    # -----------------------------
-    st.markdown("### 🧪 Try Example Inputs")
-    col1, col2 = st.columns(2)
-
-    # GOOD (Medical domain examples)
-    with col1:
-        if st.button("🩺 Medical Example 1 (Clinical Note)"):
-            st.session_state.editor_text = (
-                "The patient presents with nasal congestion and wheezing. "
-                "She has a history of asthma and allergic rhinitis. "
-                "Current medications include albuterol and loratadine. "
-                "Physical exam reveals mild erythema of the nasal mucosa."
-            )
-
-        if st.button("🩺 Medical Example 2 (Procedure Report)"):
-            st.session_state.editor_text = (
-                "The patient was taken to the operating room and placed supine. "
-                "General anesthesia was administered. "
-                "The abdomen was prepped and draped in sterile fashion. "
-                "The procedure was completed without complications."
-            )
-
-    # BAD (Out-of-domain examples)
-    with col2:
-        if st.button("🚫 Non-Medical Example 1 (Sales Email)"):
-            st.session_state.editor_text = (
-                "Hi team, we are excited to announce our new summer promotion. "
-                "This limited time offer will help drive engagement and increase revenue. "
-                "Please update the proposal deck and send it to the client by Friday."
-            )
-
-        if st.button("🚫 Non-Medical Example 2 (Marketing Copy)"):
-            st.session_state.editor_text = (
-                "Our product delivers unmatched performance and scalability. "
-                "It is designed to streamline workflows and maximize efficiency. "
-                "Contact our sales team today to schedule a demo."
-            )
-
-    # -----------------------------
-    # MAIN TEXT BOX
-    # -----------------------------
     input_text = st.text_area(
-        "✍️ Input Text",
+        "Write text here:",
         value=st.session_state.editor_text,
-        height=250,
-        key="editor_text"
+        height=200
     )
-
-    # -----------------------------
-    # SPELLING CORRECTION
-    # -----------------------------
-    import re
 
     input_tokens = re.findall(r"[a-zA-Z']+", input_text.lower())
     misspelled = [w for w in input_tokens if w not in vocab]
@@ -201,6 +150,7 @@ with tab1:
         st.sidebar.write("### ✏️ Suggestions")
         for word in misspelled:
             st.sidebar.markdown(f"**❌ {word}**")
+
             suggestions = rank_candidates(word)
 
             if suggestions:
@@ -218,15 +168,15 @@ with tab1:
                             st.session_state.editor_text,
                             count=1
                         )
-                    st.experimental_rerun()
+                    else:
+                        st.session_state.editor_text = input_text
 
-    # Keep session_state synced
-    input_text = st.text_area(
-    "✍️ Input Text",
-    value=st.session_state.editor_text,
-    height=250,
-    key="editor_text"
-    )
+                    st.rerun()
+            else:
+                st.sidebar.warning("No suggestions found.")
+
+    st.session_state.editor_text = input_text
+
 
 # =============================
 # TAB 2: CLEANED DATASET EXAMPLES
