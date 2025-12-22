@@ -25,44 +25,30 @@ def clean_transcription(text):
     text = re.sub(r"\b\d+(/\d+)?\b", "", text)
     text = re.sub(r"\b\d+%|\b\d+'\d+\"?", "", text)
 
-    # --------------------------------------------------
-    # 4. HARD NORMALIZATION (remove garbage first)
+   # --------------------------------------------------
+    # 4. SIMPLE PUNCTUATION NORMALIZATION
     # --------------------------------------------------
 
-    # Replace any sequence like "., ,", ", ,", ".,," → ","
-    text = re.sub(r"[.,]\s*,+", ",", text)
-
-    # Remove orphan slashes
+    # Remove slashes
     text = re.sub(r"/+", "", text)
 
-    # Remove multiple commas again (after slash removal)
-    text = re.sub(r",\s*,+", ",", text)
+    # Remove standalone commas (space-comma-space or start/end)
+    text = re.sub(r"\s*,\s*", " ", text)
 
-    # --------------------------------------------------
-    # 5. CONTEXT-AWARE punctuation fixing
-    # --------------------------------------------------
+    # Remove standalone periods (space-period-space or start/end)
+    text = re.sub(r"\s*\.\s*", ". ", text)
 
-    # Comma + Capital letter → sentence boundary
-    text = re.sub(r",\s+([A-Z])", r". \1", text)
+    # Collapse multiple periods into one
+    text = re.sub(r"\.{2,}", ".", text)
 
-    # Comma + lowercase letter → keep comma
-    text = re.sub(r",\s+([a-z])", r", \1", text)
-
-    # --------------------------------------------------
-    # 6. Cleanup dangling punctuation
-    # --------------------------------------------------
-
-    # Remove comma at start
-    text = re.sub(r"^,\s*", "", text)
-
-    # Remove comma before period
-    text = re.sub(r",\s*\.", ".", text)
-
-    # Collapse multiple periods
-    text = re.sub(r"\.\s*\.+", ".", text)
+    # Remove comma immediately before or after punctuation
+    text = re.sub(r"[,.]+\s*", ". ", text)
 
     # Normalize spaces
     text = re.sub(r"\s+", " ", text)
+
+    # Final trim
+    text = text.strip(" .")
 
     return text.strip(" ,.")
 
