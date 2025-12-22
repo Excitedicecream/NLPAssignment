@@ -6,51 +6,72 @@ from collections import Counter
 # -----------------------------
 # 0. TEXT CLEANING FUNCTION
 # -----------------------------
-def clean_transcription(text):
-    text = str(text)
+import re
 
-    # --------------------------------------------------
-    # 1. Remove section headers (ALL CAPS + colon)
-    # --------------------------------------------------
-    text = re.sub(r"\b[A-Z][A-Z\s/]+\:", "", text)
+def clean_clinical_text(text: str) -> str:
+    # -----------------------------
+    # 1. Lower-level garbage
+    # -----------------------------
 
-    # --------------------------------------------------
-    # 2. Remove numbered list markers (1., 2., 10.)
-    # --------------------------------------------------
-    text = re.sub(r"\b\d+\.\s*", "", text)
+    # Remove template placeholders
+    text = re.sub(
+        r"\b(pounds|mmhg|cm|%|years old|bmi of|ejection fraction of)\b",
+        "",
+        text,
+        flags=re.I,
+    )
 
-    # --------------------------------------------------
-    # 3. Remove vitals / measurements / percentages
-    # --------------------------------------------------
-    text = re.sub(r"\b\d+(/\d+)?\b", "", text)
-    text = re.sub(r"\b\d+%|\b\d+'\d+\"?", "", text)
+    # Remove stray quotes
+    text = re.sub(r"[\"']", "", text)
 
-   # --------------------------------------------------
-    # 4. SIMPLE PUNCTUATION NORMALIZATION
-    # --------------------------------------------------
+    # Remove anonymized names
+    text = re.sub(r"\b(abc|xyz|dr\.?\s*xyz)\b", "", text, flags=re.I)
+
+    # -----------------------------
+    # 2. Remove section headers
+    # -----------------------------
+
+    text = re.sub(
+        r"\b(vitals|neck|lungs|heart|extremities|includes|negative for|denies|eating history)\s*:?",
+        "",
+        text,
+        flags=re.I,
+    )
+
+    # -----------------------------
+    # 3. Remove measurement-only phrases
+    # -----------------------------
+
+    text = re.sub(
+        r"\b(weight was|weighs|blood pressure|pressure is|diameter of)\b[^.]*",
+        "",
+        text,
+        flags=re.I,
+    )
+
+    # -----------------------------
+    # 4. SIMPLE punctuation cleanup
+    # -----------------------------
 
     # Remove slashes
-    text = re.sub(r"/+", "", text)
+    text = re.sub(r"/+", " ", text)
 
-    # Remove standalone commas (space-comma-space or start/end)
+    # Remove commas as separators
     text = re.sub(r"\s*,\s*", " ", text)
 
-    # Remove standalone periods (space-period-space or start/end)
+    # Normalize periods
+    text = re.sub(r"\.{2,}", ".", text)
     text = re.sub(r"\s*\.\s*", ". ", text)
 
-    # Collapse multiple periods into one
-    text = re.sub(r"\.{2,}", ".", text)
+    # -----------------------------
+    # 5. Final whitespace cleanup
+    # -----------------------------
 
-    # Remove comma immediately before or after punctuation
-    text = re.sub(r"[,.]+\s*", ". ", text)
-
-    # Normalize spaces
     text = re.sub(r"\s+", " ", text)
+    text = text.strip(" .,")
 
-    # Final trim
-    text = text.strip(" .")
+    return text
 
-    return text.strip(" ,.")
 
 
 
