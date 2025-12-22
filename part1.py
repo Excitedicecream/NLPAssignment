@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import re
-from collections import Counter, defaultdict
+from collections import Counter
 
 # -----------------------------
 # 1. LOAD DATASET FROM GITHUB
@@ -39,9 +39,9 @@ def edit_distance(a, b):
         for j in range(1, len(b)+1):
             cost = 0 if a[i-1] == b[j-1] else 1
             dp[i][j] = min(
-                dp[i-1][j] + 1,     # deletion
-                dp[i][j-1] + 1,     # insertion
-                dp[i-1][j-1] + cost # substitution
+                dp[i-1][j] + 1,
+                dp[i][j-1] + 1,
+                dp[i-1][j-1] + cost
             )
 
     return dp[-1][-1]
@@ -52,7 +52,7 @@ def edit_distance(a, b):
 def generate_candidates(word):
     candidates = []
     for vocab_word in vocab:
-        if abs(len(vocab_word) - len(word)) <= 2:  # small speed filter
+        if abs(len(vocab_word) - len(word)) <= 2:
             dist = edit_distance(word, vocab_word)
             if dist <= 2:
                 candidates.append((vocab_word, dist))
@@ -74,61 +74,82 @@ def rank_candidates(word):
     return [w for w, s in sorted(scored, key=lambda x: -x[1])[:5]]
 
 # -----------------------------
-# 5. STREAMLIT UI
+# 5. STREAMLIT UI WITH TABS
 # -----------------------------
 st.title("NLP Assignment – Spelling Correction Demo")
 st.markdown(f"### 📊 Total Words in Corpus: **{total_words:,}**")
 
-st.markdown("---")
-st.subheader("📝 Enter Text")
+tab1, tab2 = st.tabs(["✍️ Spelling Correction", "📄 Dataset Examples"])
 
-if "editor_text" not in st.session_state:
-    st.session_state.editor_text = ""
+# =============================
+# TAB 1: SPELLING CORRECTION
+# =============================
+with tab1:
+    st.subheader("📝 Enter Text")
 
-input_text = st.text_area("Write text here:", value=st.session_state.editor_text, height=200)
+    if "editor_text" not in st.session_state:
+        st.session_state.editor_text = ""
 
-# Tokenize input
-input_tokens = re.findall(r"[a-zA-Z']+", input_text.lower())
+    input_text = st.text_area(
+        "Write text here:",
+        value=st.session_state.editor_text,
+        height=200
+    )
 
-# Detect misspelled words
-misspelled = [w for w in input_tokens if w not in vocab]
+    input_tokens = re.findall(r"[a-zA-Z']+", input_text.lower())
+    misspelled = [w for w in input_tokens if w not in vocab]
 
-# RIGHT SIDEBAR
-st.sidebar.title("🔧 Corrections")
+    st.sidebar.title("🔧 Corrections")
 
-if not misspelled:
-    st.sidebar.success("No spelling errors detected!")
-else:
-    st.sidebar.write("### ✏️ Suggestions")
-    for word in misspelled:
-        st.sidebar.markdown(f"**❌ {word}**")
+    if not misspelled:
+        st.sidebar.success("No spelling errors detected!")
+    else:
+        st.sidebar.write("### ✏️ Suggestions")
+        for word in misspelled:
+            st.sidebar.markdown(f"**❌ {word}**")
 
-        # generate top suggestions
-        suggestions = rank_candidates(word)
+            suggestions = rank_candidates(word)
 
-        if suggestions:
-            choice = st.sidebar.radio(
-                f"Replace '{word}' with:",
-                options=suggestions + ["(keep original)"],
-                key=word
-            )
+            if suggestions:
+                choice = st.sidebar.radio(
+                    f"Replace '{word}' with:",
+                    options=suggestions + ["(keep original)"],
+                    key=word
+                )
 
-            # Apply button
-            if st.sidebar.button(f"Apply '{word}'", key=word+"_apply"):
-                if choice != "(keep original)":
-                    # replace only one instance
-                    st.session_state.editor_text = re.sub(
-                        r"\b" + re.escape(word) + r"\b",
-                        choice,
-                        st.session_state.editor_text,
-                        count=1
-                    )
-                else:
-                    st.session_state.editor_text = input_text
+                if st.sidebar.button(f"Apply '{word}'", key=word+"_apply"):
+                    if choice != "(keep original)":
+                        st.session_state.editor_text = re.sub(
+                            r"\b" + re.escape(word) + r"\b",
+                            choice,
+                            st.session_state.editor_text,
+                            count=1
+                        )
+                    else:
+                        st.session_state.editor_text = input_text
 
-                st.rerun()
-        else:
-            st.sidebar.warning("No suggestions found.")
+                    st.rerun()
+            else:
+                st.sidebar.warning("No suggestions found.")
 
-# Update editor
-st.session_state.editor_text = input_text
+    st.session_state.editor_text = input_text
+
+# =============================
+# TAB 2: DATASET EXAMPLES
+# =============================
+with tab2:
+    st.subheader("📄 Sample Transcriptions from Dataset")
+
+    num_examples = st.slider(
+        "Number of examples to show:",
+        min_value=1,
+        max_value=10,
+        value=5
+    )
+
+    st.info("These examples come directly from the **mtsamples** dataset.")
+
+    for i, text in enumerate(df["transcription"].head(num_examples), start=1):
+        st.markdown(f"**Example {i}:**")
+        st.write(text)
+        st.markdown("---")
