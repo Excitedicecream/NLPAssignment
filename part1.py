@@ -8,69 +8,31 @@ from collections import Counter
 # -----------------------------
 import re
 
-def clean_clinical_text(text: str) -> str:
-    # -----------------------------
-    # 1. Lower-level garbage
-    # -----------------------------
+import string
 
-    # Remove template placeholders
-    text = re.sub(
-        r"\b(pounds|mmhg|cm|%|years old|bmi of|ejection fraction of)\b",
-        "",
-        text,
-        flags=re.I,
-    )
+def clean_punctuation_simple(text: str) -> str:
+    result = []
+    n = len(text)
 
-    # Remove stray quotes
-    text = re.sub(r"[\"']", "", text)
+    for i, ch in enumerate(text):
+        if ch in {",", "."}:
+            prev = text[i - 1] if i > 0 else ""
+            nxt = text[i + 1] if i < n - 1 else ""
 
-    # Remove anonymized names
-    text = re.sub(r"\b(abc|xyz|dr\.?\s*xyz)\b", "", text, flags=re.I)
+            # keep punctuation ONLY if letter,punctuation,letter
+            if prev.isalpha() and nxt.isalpha():
+                result.append(ch)
+            else:
+                continue  # drop punctuation
+        else:
+            result.append(ch)
 
-    # -----------------------------
-    # 2. Remove section headers
-    # -----------------------------
+    # normalize spaces
+    cleaned = "".join(result)
+    cleaned = " ".join(cleaned.split())
 
-    text = re.sub(
-        r"\b(vitals|neck|lungs|heart|extremities|includes|negative for|denies|eating history)\s*:?",
-        "",
-        text,
-        flags=re.I,
-    )
+    return cleaned.strip()
 
-    # -----------------------------
-    # 3. Remove measurement-only phrases
-    # -----------------------------
-
-    text = re.sub(
-        r"\b(weight was|weighs|blood pressure|pressure is|diameter of)\b[^.]*",
-        "",
-        text,
-        flags=re.I,
-    )
-
-    # -----------------------------
-    # 4. SIMPLE punctuation cleanup
-    # -----------------------------
-
-    # Remove slashes
-    text = re.sub(r"/+", " ", text)
-
-    # Remove commas as separators
-    text = re.sub(r"\s*,\s*", " ", text)
-
-    # Normalize periods
-    text = re.sub(r"\.{2,}", ".", text)
-    text = re.sub(r"\s*\.\s*", ". ", text)
-
-    # -----------------------------
-    # 5. Final whitespace cleanup
-    # -----------------------------
-
-    text = re.sub(r"\s+", " ", text)
-    text = text.strip(" .,")
-
-    return text
 
 
 
