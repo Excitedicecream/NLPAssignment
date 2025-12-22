@@ -221,7 +221,12 @@ with tab1:
                     st.experimental_rerun()
 
     # Keep session_state synced
-    st.session_state.editor_text = input_text
+    input_text = st.text_area(
+    "✍️ Input Text",
+    value=st.session_state.editor_text,
+    height=250,
+    key="editor_text"
+)
 
 # =============================
 # TAB 2: CLEANED DATASET EXAMPLES
