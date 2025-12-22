@@ -139,12 +139,9 @@ with tab1:
     # EXAMPLE BUTTONS
     # -----------------------------
     st.markdown("### 🧪 Try Example Inputs")
-
     col1, col2 = st.columns(2)
 
-    # -----------------------------
     # GOOD (Medical domain examples)
-    # -----------------------------
     with col1:
         if st.button("🩺 Medical Example 1 (Clinical Note)"):
             st.session_state.editor_text = (
@@ -162,9 +159,7 @@ with tab1:
                 "The procedure was completed without complications."
             )
 
-    # -----------------------------
     # BAD (Out-of-domain examples)
-    # -----------------------------
     with col2:
         if st.button("🚫 Non-Medical Example 1 (Sales Email)"):
             st.session_state.editor_text = (
@@ -181,23 +176,19 @@ with tab1:
             )
 
     # -----------------------------
-    # MAIN TEXT BOX (First Tab)
+    # MAIN TEXT BOX
     # -----------------------------
-    st.text_area(
+    input_text = st.text_area(
         "✍️ Input Text",
         value=st.session_state.editor_text,
         height=250,
         key="editor_text"
     )
 
-    if "editor_text" not in st.session_state:
-        st.session_state.editor_text = ""
-
-    input_text = st.text_area(
-        "Write text here:",
-        value=st.session_state.editor_text,
-        height=200
-    )
+    # -----------------------------
+    # SPELLING CORRECTION
+    # -----------------------------
+    import re
 
     input_tokens = re.findall(r"[a-zA-Z']+", input_text.lower())
     misspelled = [w for w in input_tokens if w not in vocab]
@@ -210,7 +201,6 @@ with tab1:
         st.sidebar.write("### ✏️ Suggestions")
         for word in misspelled:
             st.sidebar.markdown(f"**❌ {word}**")
-
             suggestions = rank_candidates(word)
 
             if suggestions:
@@ -228,15 +218,10 @@ with tab1:
                             st.session_state.editor_text,
                             count=1
                         )
-                    else:
-                        st.session_state.editor_text = input_text
+                    st.experimental_rerun()
 
-                    st.rerun()
-            else:
-                st.sidebar.warning("No suggestions found.")
-
+    # Keep session_state synced
     st.session_state.editor_text = input_text
-
 
 # =============================
 # TAB 2: CLEANED DATASET EXAMPLES
