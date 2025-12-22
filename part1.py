@@ -9,49 +9,63 @@ from collections import Counter
 def clean_transcription(text):
     text = str(text)
 
-    # -----------------------------
-    # Remove section headers (ALL CAPS + colon)
-    # -----------------------------
+    # --------------------------------------------------
+    # 1. Remove section headers (ALL CAPS + colon)
+    # --------------------------------------------------
     text = re.sub(r"\b[A-Z][A-Z\s/]+\:", "", text)
 
-    # -----------------------------
-    # Remove numbered list markers (1., 2., 10.)
-    # -----------------------------
+    # --------------------------------------------------
+    # 2. Remove numbered list markers (1., 2., 10.)
+    # --------------------------------------------------
     text = re.sub(r"\b\d+\.\s*", "", text)
 
-    # -----------------------------
-    # Remove vitals / measurements / percentages
-    # -----------------------------
-    text = re.sub(r"\b\d+(/\d+)?\b", "", text)        # 124/78, 49
-    text = re.sub(r"\b\d+%|\b\d+'\d+\"?", "", text)  # 70%, 5'9"
+    # --------------------------------------------------
+    # 3. Remove vitals / measurements / percentages
+    # --------------------------------------------------
+    text = re.sub(r"\b\d+(/\d+)?\b", "", text)
+    text = re.sub(r"\b\d+%|\b\d+'\d+\"?", "", text)
 
-    # -----------------------------
-    # Normalize repeated punctuation
-    # -----------------------------
+    # --------------------------------------------------
+    # 4. HARD NORMALIZATION (remove garbage first)
+    # --------------------------------------------------
 
-    # Collapse multiple commas into one
+    # Replace any sequence like "., ,", ", ,", ".,," → ","
+    text = re.sub(r"[.,]\s*,+", ",", text)
+
+    # Remove orphan slashes
+    text = re.sub(r"/+", "", text)
+
+    # Remove multiple commas again (after slash removal)
     text = re.sub(r",\s*,+", ",", text)
 
-    # Fix comma followed by capital letter → sentence boundary
+    # --------------------------------------------------
+    # 5. CONTEXT-AWARE punctuation fixing
+    # --------------------------------------------------
+
+    # Comma + Capital letter → sentence boundary
     text = re.sub(r",\s+([A-Z])", r". \1", text)
 
-    # Fix comma followed by lowercase → keep comma
+    # Comma + lowercase letter → keep comma
     text = re.sub(r",\s+([a-z])", r", \1", text)
 
-    # Remove comma at beginning of text
+    # --------------------------------------------------
+    # 6. Cleanup dangling punctuation
+    # --------------------------------------------------
+
+    # Remove comma at start
     text = re.sub(r"^,\s*", "", text)
 
-    # Remove dangling commas before periods
+    # Remove comma before period
     text = re.sub(r",\s*\.", ".", text)
 
-    # -----------------------------
-    # Clean up leftover artifacts
-    # -----------------------------
-    text = re.sub(r"\s+", " ", text)          # normalize spaces
-    text = re.sub(r"\s+([.,])", r"\1", text)  # space before punctuation
-    text = text.strip(" ,.")
+    # Collapse multiple periods
+    text = re.sub(r"\.\s*\.+", ".", text)
 
-    return text
+    # Normalize spaces
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip(" ,.")
+
 
 
 # -----------------------------
