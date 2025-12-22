@@ -9,21 +9,47 @@ from collections import Counter
 def clean_transcription(text):
     text = str(text)
 
+    # -----------------------------
     # Remove section headers (ALL CAPS + colon)
+    # -----------------------------
     text = re.sub(r"\b[A-Z][A-Z\s/]+\:", "", text)
 
+    # -----------------------------
     # Remove numbered list markers (1., 2., 10.)
+    # -----------------------------
     text = re.sub(r"\b\d+\.\s*", "", text)
 
+    # -----------------------------
     # Remove vitals / measurements / percentages
+    # -----------------------------
     text = re.sub(r"\b\d+(/\d+)?\b", "", text)        # 124/78, 49
     text = re.sub(r"\b\d+%|\b\d+'\d+\"?", "", text)  # 70%, 5'9"
 
-    # Remove extra commas
-    text = re.sub(r",+", ",", text)
+    # -----------------------------
+    # Normalize repeated punctuation
+    # -----------------------------
 
-    # Normalize whitespace
-    text = re.sub(r"\s+", " ", text).strip()
+    # Collapse multiple commas into one
+    text = re.sub(r",\s*,+", ",", text)
+
+    # Fix comma followed by capital letter → sentence boundary
+    text = re.sub(r",\s+([A-Z])", r". \1", text)
+
+    # Fix comma followed by lowercase → keep comma
+    text = re.sub(r",\s+([a-z])", r", \1", text)
+
+    # Remove comma at beginning of text
+    text = re.sub(r"^,\s*", "", text)
+
+    # Remove dangling commas before periods
+    text = re.sub(r",\s*\.", ".", text)
+
+    # -----------------------------
+    # Clean up leftover artifacts
+    # -----------------------------
+    text = re.sub(r"\s+", " ", text)          # normalize spaces
+    text = re.sub(r"\s+([.,])", r"\1", text)  # space before punctuation
+    text = text.strip(" ,.")
 
     return text
 
