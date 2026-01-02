@@ -134,44 +134,67 @@ tab1, tab2, tab3 = st.tabs([
 # TAB 1: SPELLING CORRECTION
 # =============================
 with tab1:
-    if "editor_text" not in st.session_state:
-    st.session_state.editor_text = ""
 
+    st.subheader("✍️ Spelling Correction Demo")
+
+    # -----------------------------
+    # INITIALISE SESSION STATE
+    # -----------------------------
+    if "editor_text" not in st.session_state:
+        st.session_state.editor_text = ""
+
+    # -----------------------------
+    # SAMPLE TEXTS
+    # -----------------------------
     sample_texts = {
         "": "",
-        "Clinical Report Sample": """
-    The patient was admitted to the medical ward for further evaluation of chronic chest pain and shortness of breath. According to the clinical history, the patient has been experiecing intermittent chest discomfort for the past six months, which has gradually increased in frequncy and severity. The pain is described as a dull pressure sensation that radiates form the center of the chest to the left shoulder and upper arm. The patient reported that the pain usually occurs during physical exertion but sometimes appears at rest, especialy during periods of emotional stress.
-    
-    Past medical history reveals a long-standing history of hypertension and type two diabetes mellitus. The patient admited to poor medication compliance due to financial constraints and lack of understanding regarding the importance of regular treatment. Blood presure recordings during admission were consistently elevated.
-    """,
-    
-        "Business Report Sample": """
-    This report analyses the recent performance of the organisation and evaluates the effectiveness of its current strategic initiatives. Over the past fiscal year, the company has experienced a steady increase in revenue. However, several operational challanges were identified that may impact future growth if they are not addressed in a timely manner.
-    
-    Delays in raw material deliveries resulted in production bottlenecks, and some orders were delivered later then promised. Their is evidence that communication between departments needs improvement.
-    """,
-    
-        "NLP Research Sample": """
-    Natural language processing has emerged as a critical area of research within artificial intelligence. Despite recent advancements, challanges remain in handling ambiguity and context. Real word spelling errors are often overlooked by traditional spell checkers because the incorrect word still exists in the dictionary.
-    
-    This highlights the importance of incorporating contextual information such as bigram language models.
-    """
+        "Clinical Report Sample": (
+            "The patient was admitted to the medical ward for further evaluation of chronic chest pain "
+            "and shortness of breath. According to the clinical history, the patient has been experiecing "
+            "intermittent chest discomfort for the past six months, which has gradually increased in "
+            "frequncy and severity. The pain is described as a dull pressure sensation that radiates form "
+            "the center of the chest to the left shoulder and upper arm. The patient reported that the pain "
+            "usually occurs during physical exertion but sometimes appears at rest, especialy during "
+            "periods of emotional stress.\n\n"
+            "Past medical history reveals a long-standing history of hypertension and type two diabetes "
+            "mellitus. The patient admited to poor medication compliance due to financial constraints."
+        ),
+        "Business Report Sample": (
+            "This report analyses the recent performance of the organisation and evaluates the effectiveness "
+            "of its current strategic initiatives. Over the past fiscal year, the company has experienced "
+            "a steady increase in revenue. However, several operational challanges were identified that may "
+            "impact future growth if they are not addressed in a timely manner.\n\n"
+            "Delays in raw material deliveries resulted in production bottlenecks, and some orders were "
+            "delivered later then promised. Their is evidence that communication between departments needs "
+            "improvement."
+        ),
+        "NLP Research Sample": (
+            "Natural language processing has emerged as a critical area of research within artificial "
+            "intelligence. Despite recent advancements, challanges remain in handling ambiguity and context. "
+            "Real word spelling errors are often overlooked by traditional spell checkers because the "
+            "incorrect word still exists in the dictionary.\n\n"
+            "This highlights the importance of incorporating contextual information such as bigram "
+            "language models."
+        ),
     }
-    
+
+    # -----------------------------
+    # DROPDOWN (THIS WILL SHOW)
+    # -----------------------------
     selected_sample = st.selectbox(
-        "Choose a sample text:",
-        list(sample_texts.keys())
+        "📌 Choose a sample text to load:",
+        options=list(sample_texts.keys()),
+        index=0
     )
-    
-    if selected_sample and selected_sample != "":
-        if st.button("Use Sample Text"):
+
+    if selected_sample != "":
+        if st.button("Use selected sample"):
             st.session_state.editor_text = sample_texts[selected_sample]
             st.rerun()
-    
 
-    # --------------------------------
+    # -----------------------------
     # TEXT INPUT
-    # --------------------------------
+    # -----------------------------
     input_text = st.text_area(
         "Enter text (max 500 characters):",
         value=st.session_state.editor_text,
@@ -186,9 +209,9 @@ with tab1:
         if word not in vocab:
             misspelled.append((i, word))
 
-    # --------------------------------
+    # -----------------------------
     # HIGHLIGHT ERRORS
-    # --------------------------------
+    # -----------------------------
     highlighted = input_text
     for _, w in misspelled:
         highlighted = re.sub(
@@ -198,10 +221,39 @@ with tab1:
             flags=re.IGNORECASE
         )
 
-    st.markdown("### 🔍 Highlighted Errors")
+    st.markdown("### 🔍 Highlighted Spelling Errors")
     st.markdown(highlighted)
 
-   
+    # -----------------------------
+    # SIDEBAR CORRECTIONS
+    # -----------------------------
+    st.sidebar.title("🔧 Corrections")
+
+    if not misspelled:
+        st.sidebar.success("No spelling errors detected!")
+    else:
+        for idx, word in misspelled:
+            prev_word = tokens_input[idx - 1] if idx > 0 else None
+
+            st.sidebar.markdown(f"**❌ {word}**")
+            suggestions = rank_candidates(word, prev_word)
+
+            if suggestions:
+                choice = st.sidebar.radio(
+                    f"Replace '{word}' with:",
+                    options=suggestions + ["(keep original)"],
+                    key=f"{word}_{idx}"
+                )
+
+                if st.sidebar.button(f"Apply '{word}'", key=f"apply_{word}_{idx}"):
+                    if choice != "(keep original)":
+                        st.session_state.editor_text = re.sub(
+                            rf"\b{word}\b",
+                            choice,
+                            st.session_state.editor_text,
+                            count=1
+                        )
+                    st.rerun()
 
 # =============================
 # TAB 2: DATASET EXAMPLES
