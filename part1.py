@@ -134,58 +134,40 @@ tab1, tab2, tab3 = st.tabs([
 # TAB 1: SPELLING CORRECTION
 # =============================
 with tab1:
-
-    st.subheader("✍️ Spelling Correction Demo")
-
-    # --------------------------------
-    # PRELOADED EXAMPLE TEXTS
-    # --------------------------------
-    EXAMPLES = {
-        "Clinical Report": """
-The patient was admitted to the medical ward for further evaluation of chronic chest pain and shortness of breath. According to the clinical history, the patient has been experiecing intermittent chest discomfort for the past six months, which has gradually increased in frequncy and severity. The pain is described as a dull pressure sensation that radiates form the center of the chest to the left shoulder and upper arm. The patient reported that the pain usually occurs during physical exertion but sometimes appears at rest, especialy during periods of emotional stress.
-
-Past medical history reveals a long-standing history of hypertension and type two diabetes mellitus. The patient admited to poor medication compliance due to financial constraints and lack of understanding regarding the importance of regular treatment. Blood presure recordings during admission were consistently elevated, with systolic readings ranging between 160 and 180 mmHg. Laboratory investigations showed elevated fasting blood glucose levels and mildly increased cholesterol. Their was no previous history of myocardial infarction or stroke documented in the medical records.
-
-Physical examination revealed an overweight male patient in mild respiratory distress. Cardiovascular examination showed normal heart sounds with no audible murmurs, rubs, or gallops. Respiratory examination demonstrated reduced air entry at the lung bases bilateraly, with occasional crackles. The abdomen was soft and non tender, with no palpable organomegaly. Peripheral pulses were palpable and symmetrical, and there were no signs of peripheral edema.
-""",
-
-        "Business Report": """
-This report analyses the recent performance of the organisation and evaluates the effectiveness of its current strategic initiatives. Over the past fiscal year, the company has experienced a steady increase in revenue, primarily driven by expansion into new markets and improved operational efficiency. However, several operational challanges were identified that may impact future growth if they are not addressed in a timely manner.
-
-One of the major concerns highlighted by management is the inconsistency in supply chain coordination. Delays in raw material deliveries have resulted in production bottlenecks, which negatively affected customer satisfaction. In some cases, orders were delivered later then the promised deadlines, leading to complaints and loss of trust.
-""",
-
-        "NLP Research Article": """
-Natural language processing has emerged as a critical area of research within artificial intelligence, with applications spanning healthcare, finance, education, and social media analysis. Despite recent advancements, several challanges remain, particularly in handling ambiguity, context, and noisy real world data.
-
-Real word spelling errors are often overlooked by traditional spell checkers because the incorrect word still exists in the dictionary. This highlights the importance of incorporating contextual information into language models such as bigrams.
-"""
-    }
-
-    # --------------------------------
-    # INITIALISE SESSION STATE
-    # --------------------------------
     if "editor_text" not in st.session_state:
-        st.session_state.editor_text = ""
+    st.session_state.editor_text = ""
 
-    # --------------------------------
-    # EXAMPLE SELECTOR (GUARANTEED VISIBLE)
-    # --------------------------------
-    st.markdown("### 📌 Load an Example Text")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        if st.button("📄 Clinical Example"):
-            st.session_state.editor_text = EXAMPLES["Clinical Report"]
-
-    with col2:
-        if st.button("🏢 Business Example"):
-            st.session_state.editor_text = EXAMPLES["Business Report"]
-
-    with col3:
-        if st.button("📚 NLP Research Example"):
-            st.session_state.editor_text = EXAMPLES["NLP Research Article"]
+    sample_texts = {
+        "": "",
+        "Clinical Report Sample": """
+    The patient was admitted to the medical ward for further evaluation of chronic chest pain and shortness of breath. According to the clinical history, the patient has been experiecing intermittent chest discomfort for the past six months, which has gradually increased in frequncy and severity. The pain is described as a dull pressure sensation that radiates form the center of the chest to the left shoulder and upper arm. The patient reported that the pain usually occurs during physical exertion but sometimes appears at rest, especialy during periods of emotional stress.
+    
+    Past medical history reveals a long-standing history of hypertension and type two diabetes mellitus. The patient admited to poor medication compliance due to financial constraints and lack of understanding regarding the importance of regular treatment. Blood presure recordings during admission were consistently elevated.
+    """,
+    
+        "Business Report Sample": """
+    This report analyses the recent performance of the organisation and evaluates the effectiveness of its current strategic initiatives. Over the past fiscal year, the company has experienced a steady increase in revenue. However, several operational challanges were identified that may impact future growth if they are not addressed in a timely manner.
+    
+    Delays in raw material deliveries resulted in production bottlenecks, and some orders were delivered later then promised. Their is evidence that communication between departments needs improvement.
+    """,
+    
+        "NLP Research Sample": """
+    Natural language processing has emerged as a critical area of research within artificial intelligence. Despite recent advancements, challanges remain in handling ambiguity and context. Real word spelling errors are often overlooked by traditional spell checkers because the incorrect word still exists in the dictionary.
+    
+    This highlights the importance of incorporating contextual information such as bigram language models.
+    """
+    }
+    
+    selected_sample = st.selectbox(
+        "Choose a sample text:",
+        list(sample_texts.keys())
+    )
+    
+    if selected_sample and selected_sample != "":
+        if st.button("Use Sample Text"):
+            st.session_state.editor_text = sample_texts[selected_sample]
+            st.rerun()
+    
 
     # --------------------------------
     # TEXT INPUT
