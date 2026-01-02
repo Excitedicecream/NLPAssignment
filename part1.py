@@ -201,37 +201,7 @@ with tab1:
     st.markdown("### 🔍 Highlighted Errors")
     st.markdown(highlighted)
 
-    # --------------------------------
-    # SIDEBAR CORRECTIONS
-    # --------------------------------
-    st.sidebar.title("🔧 Corrections")
-
-    if not misspelled:
-        st.sidebar.success("No spelling errors detected!")
-    else:
-        for idx, word in misspelled:
-            prev_word = tokens_input[idx - 1] if idx > 0 else None
-
-            st.sidebar.markdown(f"**❌ {word}**")
-            suggestions = rank_candidates(word, prev_word)
-
-            if suggestions:
-                choice = st.sidebar.radio(
-                    f"Replace '{word}' with:",
-                    options=suggestions + ["(keep original)"],
-                    key=f"{word}_{idx}"
-                )
-
-                if st.sidebar.button(f"Apply '{word}'", key=f"apply_{word}_{idx}"):
-                    if choice != "(keep original)":
-                        st.session_state.editor_text = re.sub(
-                            rf"\b{word}\b",
-                            choice,
-                            st.session_state.editor_text,
-                            count=1
-                        )
-                    st.rerun()
-
+   
 
 # =============================
 # TAB 2: DATASET EXAMPLES
