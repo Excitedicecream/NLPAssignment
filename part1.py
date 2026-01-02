@@ -1,15 +1,11 @@
 import streamlit as st
 import pandas as pd
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 
 # -----------------------------
-# 0. TEXT CLEANING FUNCTION
+# 0. TEXT CLEANING
 # -----------------------------
-import re
-
-import string
-
 def clean_punctuation_simple(text: str) -> str:
     result = []
     n = len(text)
@@ -18,27 +14,18 @@ def clean_punctuation_simple(text: str) -> str:
         if ch in {",", "."}:
             prev = text[i - 1] if i > 0 else ""
             nxt = text[i + 1] if i < n - 1 else ""
-
-            # keep punctuation ONLY if letter,punctuation,letter
             if prev.isalpha() and nxt.isalpha():
                 result.append(ch)
-            else:
-                continue  # drop punctuation
         else:
             result.append(ch)
 
-    # normalize spaces
     cleaned = "".join(result)
     cleaned = " ".join(cleaned.split())
-
-    return cleaned.strip()
-
-
-
+    return cleaned.lower().strip()
 
 
 # -----------------------------
-# 1. LOAD DATASET FROM GITHUB
+# 1. LOAD & PREPARE CORPUS
 # -----------------------------
 URL = "https://raw.githubusercontent.com/Excitedicecream/NLPAssignment/refs/heads/main/mtsamples.csv"
 
@@ -47,26 +34,34 @@ def load_corpus():
     df = pd.read_csv(URL)
     df = df[["transcription"]].dropna()
 
-    # Apply cleaning
-    df["cleaned_transcription"] = df["transcription"].apply(clean_transcription)
+    df["cleaned_transcription"] = df["transcription"].apply(clean_punctuation_simple)
 
-    # Build corpus ONLY from cleaned text
-    full_text = " ".join(df["cleaned_transcription"].astype(str).tolist())
-    tokens = re.findall(r"[a-zA-Z']+", full_text.lower())
+    full_text = " ".join(df["cleaned_transcription"].astype(str))
+    tokens = re.findall(r"[a-zA-Z']+", full_text)
 
     return tokens, df
-
 
 tokens, df = load_corpus()
 total_words = len(tokens)
 
-# Build frequency dictionary and vocabulary (CLEANED)
 word_freq = Counter(tokens)
 vocab = set(tokens)
 
+# -----------------------------
+# 2. BIGRAM MODEL (REAL-WORD ERRORS)
+# -----------------------------
+bigram_freq = defaultdict(int)
+for i in range(len(tokens) - 1):
+    bigram_freq[(tokens[i], tokens[i + 1])] += 1
+
+def bigram_score(prev_word, candidate):
+    if not prev_word:
+        return 0
+    return bigram_freq.get((prev_word, candidate), 0)
+
 
 # -----------------------------
-# 2. EDIT DISTANCE FUNCTION
+# 3. EDIT DISTANCE
 # -----------------------------
 def edit_distance(a, b):
     dp = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]
@@ -89,7 +84,7 @@ def edit_distance(a, b):
 
 
 # -----------------------------
-# 3. CANDIDATE GENERATION
+# 4. CANDIDATE GENERATION
 # -----------------------------
 def generate_candidates(word):
     candidates = []
@@ -102,75 +97,99 @@ def generate_candidates(word):
 
 
 # -----------------------------
-# 4. RANKING MODEL
+# 5. RANKING (EDIT DISTANCE + FREQUENCY + BIGRAM)
 # -----------------------------
-def rank_candidates(word):
+def rank_candidates(word, prev_word=None):
     candidates = generate_candidates(word)
     if not candidates:
         return []
 
     scored = []
     for cand, dist in candidates:
-        score = -dist + (word_freq[cand] / 10000)
+        score = (
+            -dist +
+            (word_freq[cand] / total_words) +
+            (bigram_score(prev_word, cand) * 0.001)
+        )
         scored.append((cand, score))
 
     return [w for w, _ in sorted(scored, key=lambda x: -x[1])[:5]]
 
 
 # -----------------------------
-# 5. STREAMLIT UI
+# 6. STREAMLIT UI
 # -----------------------------
-st.title("NLP Assignment – Spelling Correction Demo (Cleaned Clinical Notes)")
-st.markdown(f"### 📊 Total Words in Cleaned Corpus: **{total_words:,}**")
+st.set_page_config(page_title="NLP Spelling Correction", layout="wide")
 
-tab1, tab2 = st.tabs(["✍️ Spelling Correction", "📄 Cleaned Dataset Examples"])
+st.title("🧠 NLP Assignment – Spelling Correction System")
+st.markdown(f"### 📊 Total Words in Corpus: **{total_words:,}**")
+
+tab1, tab2, tab3 = st.tabs([
+    "✍️ Spelling Correction",
+    "📄 Dataset Examples",
+    "📖 Dictionary Explorer"
+])
 
 # =============================
 # TAB 1: SPELLING CORRECTION
 # =============================
 with tab1:
-    st.subheader("📝 Enter Text")
     if "editor_text" not in st.session_state:
         st.session_state.editor_text = ""
 
     input_text = st.text_area(
-        "Write text here:",
+        "Enter text (max 500 characters):",
         value=st.session_state.editor_text,
-        height=200
+        height=200,
+        max_chars=500
     )
 
-    input_tokens = re.findall(r"[a-zA-Z']+", input_text.lower())
-    misspelled = [w for w in input_tokens if w not in vocab]
+    tokens_input = re.findall(r"[a-zA-Z']+", input_text.lower())
+
+    misspelled = []
+    for i, word in enumerate(tokens_input):
+        if word not in vocab:
+            misspelled.append((i, word))
+
+    # Highlight text
+    highlighted = input_text
+    for _, w in misspelled:
+        highlighted = re.sub(
+            rf"\b{w}\b",
+            f"**:red[{w}]**",
+            highlighted,
+            flags=re.IGNORECASE
+        )
+
+    st.markdown("### 🔍 Highlighted Errors")
+    st.markdown(highlighted)
 
     st.sidebar.title("🔧 Corrections")
 
     if not misspelled:
         st.sidebar.success("No spelling errors detected!")
     else:
-        st.sidebar.write("### ✏️ Suggestions")
-        for word in misspelled:
-            st.sidebar.markdown(f"**❌ {word}**")
+        for idx, word in misspelled:
+            prev_word = tokens_input[idx - 1] if idx > 0 else None
 
-            suggestions = rank_candidates(word)
+            st.sidebar.markdown(f"**❌ {word}**")
+            suggestions = rank_candidates(word, prev_word)
 
             if suggestions:
                 choice = st.sidebar.radio(
                     f"Replace '{word}' with:",
                     options=suggestions + ["(keep original)"],
-                    key=word
+                    key=f"{word}_{idx}"
                 )
 
-                if st.sidebar.button(f"Apply '{word}'", key=word + "_apply"):
+                if st.sidebar.button(f"Apply '{word}'", key=f"apply_{word}_{idx}"):
                     if choice != "(keep original)":
                         st.session_state.editor_text = re.sub(
-                            r"\b" + re.escape(word) + r"\b",
+                            rf"\b{word}\b",
                             choice,
                             st.session_state.editor_text,
                             count=1
                         )
-                    else:
-                        st.session_state.editor_text = input_text
-
                     st.rerun()
             else:
                 st.sidebar.warning("No suggestions found.")
@@ -179,27 +198,29 @@ with tab1:
 
 
 # =============================
-# TAB 2: CLEANED DATASET EXAMPLES
+# TAB 2: DATASET EXAMPLES
 # =============================
 with tab2:
-    st.subheader("📄 Cleaned Sample Transcriptions")
+    st.subheader("📄 Cleaned Corpus Samples")
 
-    num_examples = st.slider(
-        "Number of examples to show:",
-        min_value=1,
-        max_value=10,
-        value=5
-    )
-
-    st.info(
-        "These examples are preprocessed by removing section headers, "
-        "numbers, vitals, and formatting noise before tokenization."
-    )
-
-    for i, text in enumerate(
-        df["cleaned_transcription"].head(num_examples),
-        start=1
-    ):
+    n = st.slider("Number of samples:", 1, 10, 5)
+    for i, text in enumerate(df["cleaned_transcription"].head(n), start=1):
         st.markdown(f"**Example {i}:**")
         st.write(text)
         st.markdown("---")
+
+
+# =============================
+# TAB 3: DICTIONARY EXPLORER
+# =============================
+with tab3:
+    st.subheader("📖 Corpus Dictionary")
+
+    search = st.text_input("Search for a word:")
+    vocab_list = sorted(vocab)
+
+    if search:
+        vocab_list = [w for w in vocab_list if search.lower() in w]
+
+    st.write(f"Showing {len(vocab_list)} words")
+    st.write(vocab_list[:500])
