@@ -133,6 +133,20 @@ tab1, tab2, tab3 = st.tabs([
 # =============================
 # TAB 1: SPELLING CORRECTION
 # =============================
+EXAMPLES = {
+    "Clinical Report": """<PASTE EXAMPLE TEXT 1 HERE>""",
+    "Business Report": """<PASTE EXAMPLE TEXT 2 HERE>""",
+    "NLP Research Article": """<PASTE EXAMPLE TEXT 3 HERE>"""
+}
+
+selected_example = st.selectbox(
+    "Load example text:",
+    ["(Choose an example)"] + list(EXAMPLES.keys())
+)
+
+if selected_example != "(Choose an example)":
+    st.session_state.editor_text = EXAMPLES[selected_example]
+
 with tab1:
     if "editor_text" not in st.session_state:
         st.session_state.editor_text = ""
