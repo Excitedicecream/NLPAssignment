@@ -269,16 +269,106 @@ with tab2:
 
 
 # =============================
-# TAB 3: DICTIONARY EXPLORER
+# TAB 3: SYSTEM WORKFLOW & CORPUS DESIGN
 # =============================
 with tab3:
-    st.subheader("📖 Corpus Dictionary")
+    st.subheader("🧩 System Workflow and Corpus Design")
 
-    search = st.text_input("Search for a word:")
-    vocab_list = sorted(vocab)
+    st.markdown("""
+    This section explains how the spelling correction system works internally
+    and how the corpus influences its behaviour.
+    """)
 
-    if search:
-        vocab_list = [w for w in vocab_list if search.lower() in w]
+    # -----------------------------
+    # WORKFLOW STEPS
+    # -----------------------------
+    with st.expander("Step 1 – Corpus Preparation"):
+        st.markdown("""
+        - Raw corpus text is cleaned and normalised.
+        - Text is converted to lowercase to ensure consistency.
+        - The corpus is tokenised into individual words.
+        - A vocabulary of valid words is created.
+        - Word frequency statistics are computed.
+        - Bigram frequencies are generated to capture contextual patterns.
+        """)
 
-    st.write(f"Showing {len(vocab_list)} words")
-    st.write(vocab_list[:500])
+    with st.expander("Step 2 – User Input Processing"):
+        st.markdown("""
+        - User input text is tokenised using the same method as the corpus.
+        - Consistent tokenisation ensures accurate comparison.
+        - Each input word is checked against the corpus vocabulary.
+        """)
+
+    with st.expander("Step 3 – Spelling Error Detection"):
+        st.markdown("""
+        - Words not found in the vocabulary are flagged as non-word errors.
+        - This approach efficiently detects misspellings without requiring
+          external dictionaries.
+        """)
+
+    with st.expander("Step 4 – Candidate Generation (Edit Distance)"):
+        st.markdown("""
+        - Correction candidates are generated using Minimum Edit Distance.
+        - Only words with small edit distances are considered.
+        - This ensures corrections are linguistically plausible.
+        """)
+
+    with st.expander("Step 5 – Context-Aware Candidate Ranking"):
+        st.markdown("""
+        - Candidates are ranked using a hybrid scoring strategy:
+            - Edit distance (string similarity)
+            - Word frequency (corpus likelihood)
+            - Bigram context (previous word relationship)
+        - This enables correction of both non-word and real-word errors.
+        """)
+
+    with st.expander("Step 6 – Interactive Correction"):
+        st.markdown("""
+        - Top-ranked suggestions are presented to the user.
+        - The user selects a replacement or keeps the original word.
+        - Corrections are applied incrementally and the text is re-evaluated.
+        """)
+
+    # -----------------------------
+    # BENEFITS
+    # -----------------------------
+    with st.expander("🏥 Benefits of Using Larger and Domain-Specific Corpora"):
+        st.markdown("""
+        **1. Improved Vocabulary Coverage**  
+        Domain-specific terms (e.g. medical terminology) are recognised
+        as valid words, reducing false error detection.
+
+        **2. More Accurate Corrections**  
+        Edit distance candidates are biased toward domain-relevant words,
+        improving correction quality.
+
+        **3. Better Contextual Accuracy**  
+        Bigram models learn domain-specific word usage patterns, improving
+        real-word error correction.
+
+        **4. Domain Adaptability**  
+        The system architecture remains unchanged. Replacing the corpus
+        automatically adapts the system to new domains.
+
+        **5. Scalability**  
+        Larger corpora improve frequency estimation and reduce sparsity,
+        leading to more reliable probabilistic ranking.
+        """)
+
+    # -----------------------------
+    # LIMITATIONS & FUTURE WORK
+    # -----------------------------
+    with st.expander("⚠️ Limitations and Future Improvements"):
+        st.markdown("""
+        **Current Limitations**
+        - Uses bigram context only and cannot model long-range dependencies.
+        - Relies on vocabulary presence to detect errors.
+        - Computational cost increases with very large vocabularies.
+
+        **Future Improvements**
+        - Extend to trigram or neural language models.
+        - Incorporate Part-of-Speech (POS) tagging to enforce grammatical rules.
+        - Use semantic embeddings to improve meaning-based correction.
+        - Apply smoothing techniques to improve probability estimation.
+        """)
+
