@@ -127,7 +127,7 @@ st.markdown(f"### 📊 Total Words in Corpus: **{total_words:,}**")
 tab1, tab2, tab3 = st.tabs([
     "✍️ Spelling Correction",
     "📄 Dataset Examples",
-    "📖 Dictionary Explorer"
+    "📖 System Workflow & Corpus Design"
 ])
 
 # =============================
