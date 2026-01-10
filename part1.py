@@ -245,7 +245,7 @@ with tab1:
                     key=f"{word}_{idx}"
                 )
 
-                if st.sidebar.button(f"Apply '{word}'", key=f"apply_{word}_{idx}"):
+                if st.sidebar.button(f"Apply", key=f"apply_{word}_{idx}"):
                     if choice != "(keep original)":
                         st.session_state.editor_text = re.sub(
                             rf"\b{word}\b",
