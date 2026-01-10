@@ -149,32 +149,14 @@ with tab1:
     sample_texts = {
         "": "",
         "Clinical Report Sample": (
-            "The patient was admitted to the medical ward for further evaluation of chronic chest pain "
-            "and shortness of breath. According to the clinical history, the patient has been experiecing "
-            "intermittent chest discomfort for the past six months, which has gradually increased in "
-            "frequncy and severity. The pain is described as a dull pressure sensation that radiates form "
-            "the center of the chest to the left shoulder and upper arm. The patient reported that the pain "
-            "usually occurs during physical exertion but sometimes appears at rest, especialy during "
-            "periods of emotional stress.\n\n"
-            "Past medical history reveals a long-standing history of hypertension and type two diabetes "
-            "mellitus. The patient admited to poor medication compliance due to financial constraints."
+            "The patient was admitted to the medical ward for further evaluation of chronic chest pain and shortness of breath. According to the clinical history, the patient has been experiecing intermittent chest discomfort for the past six months, which has gradually increased in frequncy and severity. The pain is described as a dull pressure sensation that radiates form the center of the chest to the left shoulder and upper arm. The patient reported that the pain usually occurs during physical exertion but sometimes appears at rest, especialy during periods of emotional stress. Past medical history reveals a long-standing history of hypertension and type two diabetes mellitus. The patient admited to poor medication compliance due to financial constraints."
         ),
         "Business Report Sample": (
-            "This report analyses the recent performance of the organisation and evaluates the effectiveness "
-            "of its current strategic initiatives. Over the past fiscal year, the company has experienced "
-            "a steady increase in revenue. However, several operational challanges were identified that may "
-            "impact future growth if they are not addressed in a timely manner.\n\n"
-            "Delays in raw material deliveries resulted in production bottlenecks, and some orders were "
-            "delivered later then promised. Their is evidence that communication between departments needs "
-            "improvement."
+            "This report analyses the recent performance of the organisation and evaluates the effectiveness of its current strategic initiatives. Over the past fiscal year, the company has experienced a steady increase in revenue. However, several operational challanges were identified that may impact future growth if they are not addressed in a timely manner.Delays in raw material deliveries resulted in production bottlenecks, and some orders were delivered later then promised. Their is evidence that communication between departments needs improvement."
         ),
         "NLP Research Sample": (
-            "Natural language processing has emerged as a critical area of research within artificial "
-            "intelligence. Despite recent advancements, challanges remain in handling ambiguity and context. "
-            "Real word spelling errors are often overlooked by traditional spell checkers because the "
-            "incorrect word still exists in the dictionary.\n\n"
-            "This highlights the importance of incorporating contextual information such as bigram "
-            "language models."
+            "Natural language processing has emerged as a critical area of research within artificial intelligence. Despite recent advancements, challanges remain in handling ambiguity and context. Real word spelling errors are often overlooked by traditional spell checkers because the incorrect word still exists in the dictionary."
+            "This highlights the importance of incorporating contextual information such as bigram language models."
         ),
     }
 
