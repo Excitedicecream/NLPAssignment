@@ -149,7 +149,7 @@ with tab1:
     sample_texts = {
         "": "",
         "Clinical Report Sample": (
-            "The patient was admitd to medical ward for chest pain n shortness of breath. He has had intermittent pain 4 six months, worsning with exertion or stress. Pain dull n radiates to left arm. On exam, nasal mucosa was erythematous. PMH: hypertension n type 2 diabetes. Patient admits poor med compliance due 2 financial issues."
+            "The patient was admitd to medical ward for chest pain n shortness of brath. He has had intermittet pian 4 six months, worsens with exertion or stress. Pain dull and radiates to left arm. On exam, nasal mucos was erythematus. PMH: hypertension and type 2 diabetes. Patient admits poor med compliance due 2 financial issues."
         ),
         "Business Report Sample": (
             "This report analyses the recent performance of the organisation and evaluates the effectiveness of its current strategic initiatives. Over the past fiscal year, the company has experienced a steady increase in revenue. However, several operational challanges were identified that may impact future growth if they are not addressed in a timely manner.Delays in raw material deliveries resulted in production bottlenecks, and some orders were delivered later then promised. Their is evidence that communication between departments needs improvement."
