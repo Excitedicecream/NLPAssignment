@@ -139,7 +139,48 @@ with tab1:
 
     if "replacements" not in st.session_state:
         st.session_state.replacements = {}
-
+    # -----------------------------
+    # SAMPLE TEXTS
+    # -----------------------------
+    sample_texts = {
+        "": "",
+        "Clinical Report Sample": (
+            "The patient was admitd to medical ward for chest pain and shortness of brath. "
+            "He has had intermittet painn form september 2025, which worsens with exertion or stress. "
+            "Pain dull and radiates to left arm. On exam, nasal mucos was erythematus. "
+            "PMH: hypertension and type 2 diabetes. Patient admits poor med compliance due 2 financial issues."
+        ),
+        "Business Report Sample": (
+            "This report analyses the recent performance of the organisation and evaluates the effectiveness "
+            "of its current strategic initiatives. Over the past fiscal year, the company has experienced a "
+            "steady increase in revenue. However, several operational challanges were identified that may "
+            "impact future growth if they are not addressed in a timely manner. Delays in raw material "
+            "deliveries resulted in production bottlenecks, and some orders were delivered later then promised. "
+            "Their is evidence that communication between departments needs improvement."
+        ),
+        "NLP Research Sample": (
+            "Natural language processing has emerged as a critical area of research within artificial "
+            "intelligence. Despite recent advancements, challanges remain in handling ambiguity and context. "
+            "Real word spelling errors are often overlooked by traditional spell checkers because the "
+            "incorrect word still exists in the dictionary. This highlights the importance of incorporating "
+            "contextual information such as bigram language models."
+        ),
+    }
+    
+    # -----------------------------
+    # SAMPLE DROPDOWN
+    # -----------------------------
+    selected_sample = st.selectbox(
+        "📌 Choose a sample text to load:",
+        options=list(sample_texts.keys()),
+        index=0
+    )
+    
+    if selected_sample and st.button("Use selected sample"):
+        st.session_state.editor_text = sample_texts[selected_sample]
+        st.session_state.replacements = {}  # reset pending edits
+        st.rerun()
+    
     input_text = st.text_area(
         "Enter text (max 500 characters):",
         value=st.session_state.editor_text,
