@@ -189,7 +189,7 @@ with tab1:
     tokens_input = re.findall(r"[a-zA-Z']+", input_text.lower())
 
     misspelled = []
-     for i, word in enumerate(tokens_input):
+    for i, word in enumerate(tokens_input):
         prev_word = tokens_input[i - 1] if i > 0 else None
     
         suggestions = rank_candidates(word, prev_word)
