@@ -189,8 +189,18 @@ with tab1:
     tokens_input = re.findall(r"[a-zA-Z']+", input_text.lower())
 
     misspelled = []
-    for i, word in enumerate(tokens_input):
-        if word not in vocab:
+     for i, word in enumerate(tokens_input):
+        prev_word = tokens_input[i - 1] if i > 0 else None
+    
+        suggestions = rank_candidates(word, prev_word)
+    
+        # Flag if:
+        # 1. word not in vocab (non-word error)
+        # 2. word is in vocab BUT context suggests a better alternative
+        if (
+            word not in vocab or
+            (suggestions and suggestions[0] != word)
+        ):
             misspelled.append((i, word))
 
     # -----------------------------
@@ -204,6 +214,7 @@ with tab1:
             highlighted,
             flags=re.IGNORECASE
         )
+
 
     st.markdown("### 🔍 Highlighted Spelling Errors")
     st.markdown(highlighted)
