@@ -325,6 +325,7 @@ with tab3:
           against the original word score.
         - A word is flagged only if a candidate exceeds the original word score
           by the defined threshold.
+        - It is also flagged of that word is not within the dictionary
         """)
 
     with st.expander("Part 5 – Candidate Generation"):
@@ -357,7 +358,6 @@ with tab3:
     with st.expander("🏥 Benefits of the Current System"):
         st.markdown("""
         - Medical terminology is recognised as valid words.
-        - Contextual bigram information improves correction accuracy.
         - The system supports both non-word and real-word errors.
         - The architecture can be adapted to other domains by changing the corpus.
         """)
