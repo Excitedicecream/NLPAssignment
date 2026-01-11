@@ -124,7 +124,7 @@ def rank_candidates_with_scores(word, prev_word=None):
 REAL_WORD_THRESHOLD = 0.3
 
 st.set_page_config(page_title="NLP Spelling Correction", layout="wide")
-st.title("🧠 NLP Assignment – Spelling Correction System")
+st.title("🧠 NLP Assignment Part 1 – Spelling Correction System")
 st.markdown(f"### 📊 Total Words in Corpus: **{total_words:,}**")
 
 tab1, tab2, tab3 = st.tabs(["✍️ Spelling Correction", "📄 Dataset Examples", "📖 System Workflow"])
@@ -281,104 +281,106 @@ with tab2:
 
 
 # =============================
-# TAB 3: SYSTEM WORKFLOW & CORPUS DESIGN
+# TAB 3: SYSTEM WORKFLOW
 # =============================
 with tab3:
-    st.subheader("🧩 System Workflow and Corpus Design")
+    st.subheader("🧩 System Workflow")
 
     st.markdown("""
-    This section explains how the spelling correction system works internally
-    and how the corpus influences its behaviour.
+    This section describes the internal workflow of the spelling correction
+    system and explains how the corpus is processed and used during correction.
+    The system is designed around a **medical-domain corpus** and applies
+    probabilistic techniques to correct spelling errors.
     """)
 
-    # -----------------------------
-    # WORKFLOW STEPS
-    # -----------------------------
-    with st.expander("Step 1 – Corpus Preparation"):
+    with st.expander("Part 1 – Corpus Preparation"):
         st.markdown("""
-        - Raw corpus text is cleaned and normalised.
-        - Text is converted to lowercase to ensure consistency.
+        - A medical-domain corpus is loaded from an external dataset.
+        - Raw text is cleaned by removing unnecessary punctuation.
+        - All text is converted to lowercase.
         - The corpus is tokenised into individual words.
-        - A vocabulary of valid words is created.
-        - Word frequency statistics are computed.
-        - Bigram frequencies are generated to capture contextual patterns.
         """)
-
-    with st.expander("Step 2 – User Input Processing"):
+        
+    with st.expander("Part 2 – Corpus Processing"):
         st.markdown("""
-        - User input text is tokenised using the same method as the corpus.
-        - Consistent tokenisation ensures accurate comparison.
-        - Each input word is checked against the corpus vocabulary.
+        - A vocabulary set is created from all unique tokens.
+        - Word frequency counts are calculated.
+        - Bigram frequency counts are generated from consecutive word pairs.
+        - These processed components are stored for later use during correction.
         """)
 
-    with st.expander("Step 3 – Spelling Error Detection"):
+    with st.expander("Part 3 – User Input Processing"):
         st.markdown("""
-        - All words within the input is considered to be a spelling error.
-        - The threshold for the correct spelling is set to above 30%.
+        - User input is limited to 500 characters.
+        - Input text is tokenised using the same rules as the corpus.
+        - Each word is analysed together with its previous word.
         """)
 
-    with st.expander("Step 4 – Candidate Generation (Edit Distance)"):
+    with st.expander("Part 4 – Spelling Error Detection"):
+        st.markdown("""
+        - Every input word is evaluated using the same scoring mechanism.
+        - Candidate corrections are generated for all words, regardless of
+          whether the word exists in the vocabulary.
+        - A confidence threshold of 0.3 is applied to compare the best candidate score
+          against the original word score.
+        - A word is flagged only if a candidate exceeds the original word score
+          by the defined threshold.
+        """)
+
+    with st.expander("Part 5 – Candidate Generation"):
         st.markdown("""
         - Correction candidates are generated using Minimum Edit Distance.
-        - Only words with small edit distances are considered.
-        - This ensures corrections are linguistically plausible.
+        - Only candidates with small edit distances are considered.
+        - All candidates must exist in the corpus vocabulary.
         """)
 
-    with st.expander("Step 5 – Context-Aware Candidate Ranking"):
+    with st.expander("Part 6 – Candidate Ranking"):
         st.markdown("""
-        - Candidates are ranked using a hybrid scoring strategy:
-            - Edit distance (string similarity)
-            - Word frequency (corpus likelihood)
-            - Bigram context (previous word relationship)
-        - This enables correction of both non-word and real-word errors.
+        - Candidates are scored using:
+            - Edit distance
+            - Word frequency probability
+            - Bigram context score
+        - The highest scoring candidate is suggested as the correction.
         """)
 
-    with st.expander("Step 6 – Interactive Correction"):
+    with st.expander("Part 7 – Interactive Correction"):
         st.markdown("""
-        - Top-ranked suggestions are presented to the user.
-        - The user selects a replacement or keeps the original word.
-        - Corrections are applied in a single operation after user confirmation.
+        - Misspelled words are highlighted in the editor.
+        - Up to five ranked correction options are shown.
+        - Users may select a correction or keep the original word.
+        - All selected changes are applied in a single action.
         """)
 
     # -----------------------------
     # BENEFITS
     # -----------------------------
-    with st.expander("🏥 Benefits of Using Larger and Domain-Specific Corpora"):
+    with st.expander("🏥 Benefits of the Current System"):
         st.markdown("""
-        **1. Improved Vocabulary Coverage**  
-        Domain-specific terms (e.g. medical terminology) are recognised
-        as valid words, reducing false error detection.
-
-        **2. More Accurate Corrections**  
-        Edit distance candidates are biased toward domain-relevant words,
-        improving correction quality.
-
-        **3. Better Contextual Accuracy**  
-        Bigram models learn domain-specific word usage patterns, improving
-        real-word error correction.
-
-        **4. Domain Adaptability**  
-        The system architecture remains unchanged. Replacing the corpus
-        automatically adapts the system to new domains.
-
-        **5. Scalability**  
-        Larger corpora improve frequency estimation and reduce sparsity,
-        leading to more reliable probabilistic ranking.
+        - Medical terminology is recognised as valid words.
+        - Contextual bigram information improves correction accuracy.
+        - The system supports both non-word and real-word errors.
+        - The architecture can be adapted to other domains by changing the corpus.
         """)
 
     # -----------------------------
-    # LIMITATIONS & FUTURE WORK
+    # LIMITATIONS
     # -----------------------------
-    with st.expander("⚠️ Limitations and Future Improvements"):
+    with st.expander("⚠️ System Limitations"):
         st.markdown("""
-        **Current Limitations**
-        - Uses bigram context only and cannot model long-range dependencies.
-        - Relies on vocabulary presence to detect errors.
-        - Computational cost increases with very large vocabularies.
+        - Performance is optimised for medical text only.
+        - Business and financial terms may not be recognised.
+        - Acronyms and abbreviations are not explicitly handled.
+        - Grammar and sentence structure are not modelled.
+        - Only bigram context is used; long-range dependencies are ignored.
+        """)
 
-        **Future Improvements**
-        - Extend to trigram or neural language models.
-        - Incorporate Part-of-Speech (POS) tagging to enforce grammatical rules.
-        - Use semantic embeddings to improve meaning-based correction.
-        - Apply smoothing techniques to improve probability estimation.
+    # -----------------------------
+    # FUTURE IMPROVEMENTS
+    # -----------------------------
+    with st.expander("🚀 Future Improvements"):
+        st.markdown("""
+        - Integrate Part-of-Speech (POS) tagging for grammatical awareness.
+        - Extend context modelling beyond bigrams.
+        - Add acronym and abbreviation handling.
+        - Incorporate semantic representations for improved accuracy.
         """)
