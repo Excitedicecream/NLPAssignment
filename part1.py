@@ -325,6 +325,61 @@ with tab3:
         - This ensures corrections are linguistically plausible.
         """)
 
-    with st.expander("Step 5 – Context-Aware C
+    with st.expander("Step 5 – Context-Aware Candidate Ranking"):
+        st.markdown("""
+        - Candidates are ranked using a hybrid scoring strategy:
+            - Edit distance (string similarity)
+            - Word frequency (corpus likelihood)
+            - Bigram context (previous word relationship)
+        - This enables correction of both non-word and real-word errors.
+        """)
 
+    with st.expander("Step 6 – Interactive Correction"):
+        st.markdown("""
+        - Top-ranked suggestions are presented to the user.
+        - The user selects a replacement or keeps the original word.
+        - Corrections are applied in a single operation after user confirmation.
+        """)
 
+    # -----------------------------
+    # BENEFITS
+    # -----------------------------
+    with st.expander("🏥 Benefits of Using Larger and Domain-Specific Corpora"):
+        st.markdown("""
+        **1. Improved Vocabulary Coverage**  
+        Domain-specific terms (e.g. medical terminology) are recognised
+        as valid words, reducing false error detection.
+
+        **2. More Accurate Corrections**  
+        Edit distance candidates are biased toward domain-relevant words,
+        improving correction quality.
+
+        **3. Better Contextual Accuracy**  
+        Bigram models learn domain-specific word usage patterns, improving
+        real-word error correction.
+
+        **4. Domain Adaptability**  
+        The system architecture remains unchanged. Replacing the corpus
+        automatically adapts the system to new domains.
+
+        **5. Scalability**  
+        Larger corpora improve frequency estimation and reduce sparsity,
+        leading to more reliable probabilistic ranking.
+        """)
+
+    # -----------------------------
+    # LIMITATIONS & FUTURE WORK
+    # -----------------------------
+    with st.expander("⚠️ Limitations and Future Improvements"):
+        st.markdown("""
+        **Current Limitations**
+        - Uses bigram context only and cannot model long-range dependencies.
+        - Relies on vocabulary presence to detect errors.
+        - Computational cost increases with very large vocabularies.
+
+        **Future Improvements**
+        - Extend to trigram or neural language models.
+        - Incorporate Part-of-Speech (POS) tagging to enforce grammatical rules.
+        - Use semantic embeddings to improve meaning-based correction.
+        - Apply smoothing techniques to improve probability estimation.
+        """)
