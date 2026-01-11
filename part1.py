@@ -88,21 +88,24 @@ def edit_distance(a, b):
 # -----------------------------
 def generate_candidates(word):
     candidates = []
+    candidates.append((word, 0))
+
     for vocab_word in vocab:
+        if vocab_word == word:
+            continue
+
         if abs(len(vocab_word) - len(word)) <= 2:
             dist = edit_distance(word, vocab_word)
             if dist <= 2:
                 candidates.append((vocab_word, dist))
-    return candidates
 
+    return candidates
 
 # -----------------------------
 # 5. RANKING (EDIT DISTANCE + FREQUENCY + BIGRAM)
 # -----------------------------
 def rank_candidates(word, prev_word=None):
     candidates = generate_candidates(word)
-    if not candidates:
-        return []
 
     scored = []
     for cand, dist in candidates:
@@ -113,8 +116,8 @@ def rank_candidates(word, prev_word=None):
         )
         scored.append((cand, score))
 
-    return [w for w, _ in sorted(scored, key=lambda x: -x[1])[:5]]
-
+    ranked = sorted(scored, key=lambda x: -x[1])
+    return [w for w, _ in ranked[:5]]
 
 # -----------------------------
 # 6. STREAMLIT UI
