@@ -313,9 +313,8 @@ with tab3:
 
     with st.expander("Step 3 – Spelling Error Detection"):
         st.markdown("""
-        - Words not found in the vocabulary are flagged as non-word errors.
-        - This approach efficiently detects misspellings without requiring
-          external dictionaries.
+        - All words within the input is considered to be a spelling error.
+        - The threshold for the correct spelling is set to above 30%.
         """)
 
     with st.expander("Step 4 – Candidate Generation (Edit Distance)"):
