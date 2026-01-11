@@ -266,4 +266,65 @@ with tab1:
         st.session_state.editor_text = updated_text
         st.session_state.replacements = {}
         st.rerun()
+# =============================
+# TAB 2: DATASET EXAMPLES
+# =============================
+with tab2:
+    st.subheader("📄 Cleaned Corpus Samples")
+
+    n = st.slider("Number of samples:", 1, 10, 5)
+
+    for i, text in enumerate(df["cleaned_transcription"].head(n), start=1):
+        st.markdown(f"**Example {i}:**")
+        st.write(text)
+        st.markdown("---")
+
+
+# =============================
+# TAB 3: SYSTEM WORKFLOW & CORPUS DESIGN
+# =============================
+with tab3:
+    st.subheader("🧩 System Workflow and Corpus Design")
+
+    st.markdown("""
+    This section explains how the spelling correction system works internally
+    and how the corpus influences its behaviour.
+    """)
+
+    # -----------------------------
+    # WORKFLOW STEPS
+    # -----------------------------
+    with st.expander("Step 1 – Corpus Preparation"):
+        st.markdown("""
+        - Raw corpus text is cleaned and normalised.
+        - Text is converted to lowercase to ensure consistency.
+        - The corpus is tokenised into individual words.
+        - A vocabulary of valid words is created.
+        - Word frequency statistics are computed.
+        - Bigram frequencies are generated to capture contextual patterns.
+        """)
+
+    with st.expander("Step 2 – User Input Processing"):
+        st.markdown("""
+        - User input text is tokenised using the same method as the corpus.
+        - Consistent tokenisation ensures accurate comparison.
+        - Each input word is checked against the corpus vocabulary.
+        """)
+
+    with st.expander("Step 3 – Spelling Error Detection"):
+        st.markdown("""
+        - Words not found in the vocabulary are flagged as non-word errors.
+        - This approach efficiently detects misspellings without requiring
+          external dictionaries.
+        """)
+
+    with st.expander("Step 4 – Candidate Generation (Edit Distance)"):
+        st.markdown("""
+        - Correction candidates are generated using Minimum Edit Distance.
+        - Only words with small edit distances are considered.
+        - This ensures corrections are linguistically plausible.
+        """)
+
+    with st.expander("Step 5 – Context-Aware C
+
 
